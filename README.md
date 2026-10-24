@@ -42,6 +42,8 @@ Servidor físico
 | [Administração Linux e SSH](docs/02-linux-ssh.md) | Comandos explicados e verificações |
 | [Docker e Compose](docs/03-docker-compose.md) | Serviços e persistência de dados |
 | [Roadmap](docs/04-roadmap.md) | Implementações atuais e planejadas |
+| [Proxmox e Ubuntu Server](docs/05-proxmox-ubuntu.md) | Inventário, topologia, comandos e validações pendentes |
+| [Guia de evidências](docs/06-evidencias.md) | Checklist de capturas e cuidados com dados sensíveis |
 
 ## Como ler este projeto
 
