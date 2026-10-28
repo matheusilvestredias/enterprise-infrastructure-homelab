@@ -226,5 +226,52 @@ Essa topologia representa os vínculos entre portas Linux constatados em `bridge
 ### Próximos testes
 
 - [ ] Confirmar gateway e conectividade do host sem publicar endereços reais.
-- [ ] Confirmar interface da VM, IP e gateway no Ubuntu.
+- [x] Confirmar interface da VM, IP /24, gateway e DNS configurados no Ubuntu (28/10/2026).
 - [ ] Validar comunicação do Ubuntu ao gateway, DNS e serviços da aplicação.
+
+## Rede no Ubuntu Server — evidência de 28/10/2026
+
+Saídas de `ip -br addr`, `ip route` e `resolvectl status` fornecidas a partir da VM `ubuntu-server-01`.
+
+| Item | Confirmação |
+| --- | --- |
+| Interface principal | `ens18`, estado **UP** |
+| IPv4 da VM | Endereço **/24** configurado na rede do laboratório (valor real omitido) |
+| Rota padrão | Via gateway do laboratório, dispositivo `ens18`, protocolo `static` |
+| DNS | Servidor do laboratório configurado em `ens18`; coincide com gateway |
+| `docker0` | **DOWN**, endereço privado em rede **/16** |
+| Bridge Docker adicional | `br-...`, **UP**, com rede privada **/16** distinta da `docker0` |
+| Pares `veth` | Duas interfaces virtuais **UP**, compatíveis com conexão de containers |
+| DNS do systemd-resolved | Modo `stub`; `ens18` com escopo DNS |
+
+### Interpretação
+
+A máquina virtual possui interface de rede ativa, uma rota padrão e servidor DNS configurado. A presença de bridge Docker e interfaces `veth` evidencia configuração de networking de containers. **Isso não prova isoladamente** conectividade ao gateway, resolução bem-sucedida ou que aplicações estejam respondendo.
+
+**Observação:** `docker0` pode estar DOWN mesmo com containers ativos em uma rede bridge criada pelo Compose; as interfaces pertencem a redes distintas.
+
+### Comandos executados
+
+```bash
+ip -br addr
+ip route
+resolvectl status
+```
+
+- `ip -br addr`: mostra rapidamente interfaces, estado e endereços IP.
+- `ip route`: lista a tabela de roteamento IPv4, com rota padrão e rotas das bridges Docker.
+- `resolvectl status`: informa configuração e escopo do serviço de resolução DNS por interface.
+
+### Testes seguintes, sem mudanças no sistema
+
+```bash
+ping -c 4 <IP_DO_GATEWAY>
+resolvectl query example.com
+sudo docker ps
+```
+
+- `ping -c 4 <IP_DO_GATEWAY>`: envia quatro solicitações ICMP ao gateway; exige substituir o marcador pelo IP real apenas no terminal local.
+- `resolvectl query example.com`: verifica se é possível resolver o nome de domínio em endereço IP.
+- `sudo docker ps`: lista containers atualmente em execução, com imagens, estados e portas.
+
+**Publicação:** não incluir endereços reais do laboratório, endereços MAC, IDs completos de containers, credenciais ou demais informações sensíveis.
