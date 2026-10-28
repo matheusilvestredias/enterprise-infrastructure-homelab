@@ -138,3 +138,47 @@ qm config 100
 - `100`: ID da VM consultada.
 
 Próximas checagens sem alteração de configuração: `qm guest cmd 100 ping` para verificar se o QEMU Guest Agent responde (só funciona se instalado e operacional dentro do guest), e `ip -br link` no host para inspecionar interfaces e bridges. Evitar divulgar MACs reais das saídas.
+
+## Validação de rede e QEMU Guest Agent — 28/10/2026
+
+Captura fornecida pelo operador com resultados de `qm guest cmd 100 ping` e `ip -br link` no host Proxmox.
+
+### Guest Agent
+
+```bash
+qm guest cmd 100 ping
+```
+
+O comando retornou ao prompt **sem mensagem de erro ou saída adicional**. Isso é compatível com resposta bem-sucedida ao comando `guest-ping` do QEMU Guest Agent. **Não é um teste de ping ICMP nem comprova conectividade externa.**
+
+### Interfaces observadas (endereços MAC omitidos)
+
+| Interface | Estado mostrado | Interpretação |
+| --- | --- | --- |
+| `lo` | UNKNOWN; UP/LOWER_UP | Interface loopback |
+| `nic0`, `nic1`, `nic2` | DOWN | Interfaces físicas sem link ativo no momento da captura |
+| `nic3` | UP/LOWER_UP | Interface física ativa |
+| `vmbr0` | UP/LOWER_UP | Bridge virtual ativa |
+| `tap100i0` | UNKNOWN; UP/LOWER_UP | Interface TAP da VM 100 |
+| `fwbr100i0` | UP | Bridge de firewall da VM 100 |
+| `fwpr100p0@fwln100i0` | UP | Porta virtual do caminho de firewall |
+| `fwln100i0@fwpr100p0` | UP | Par de ligação virtual do caminho de firewall |
+
+A presença dessas interfaces é coerente com a configuração `net0 ... bridge=vmbr0,firewall=1` da VM 100. A captura **não comprova, sozinha**, que `nic3` é a porta física vinculada a `vmbr0`; confirmar pelas portas da bridge.
+
+### Comandos de diagnóstico utilizados
+
+- `qm guest cmd 100 ping`: envia o comando de saúde *guest-ping* ao QEMU Guest Agent da VM 100; não testa ICMP ou Internet.
+- `ip -br link`: apresenta interfaces de rede, estado operacional e atributos resumidos. Não exibe endereços IP.
+
+### Próxima validação — somente leitura
+
+```bash
+bridge link
+ip -br addr show vmbr0
+```
+
+- `bridge link`: lista portas associadas a bridges Linux, útil para identificar a interface física ligada à bridge.
+- `ip -br addr show vmbr0`: mostra os endereços IP associados à bridge `vmbr0`. **Remover IPs reais antes da publicação.**
+
+As saídas e o vínculo físico da bridge ainda precisam ser confirmados.
