@@ -36,3 +36,29 @@ curl -I --max-time 10 http://127.0.0.1:8082
 ```
 
 Cada `curl` solicita apenas os cabeçalhos HTTP do serviço local correspondente. `--max-time 10` impõe um limite de dez segundos.
+
+## Validação HTTP dos servidores — 28/10/2026
+
+Comandos executados **dentro da VM Ubuntu Server**:
+
+```bash
+curl -I --max-time 10 http://127.0.0.1:8081
+curl -I --max-time 10 http://127.0.0.1:8082
+```
+
+| Serviço | Porta no host | Resposta HTTP | Cabeçalho Server | Resultado |
+| --- | --- | --- | --- | --- |
+| Nginx | 8081 | **HTTP/1.1 200 OK** | `nginx/1.31.7` | **Aprovado (HTTP local)** |
+| Apache | 8082 | **HTTP/1.1 200 OK** | `Apache/2.4.69 (Unix)` | **Aprovado (HTTP local)** |
+
+Ambas as requisições de cabeçalho (HEAD) responderam com sucesso pela interface de loopback da VM. Isso comprova que os serviços HTTP respondem **localmente nas portas publicadas**, mas não comprova acesso externo ou acesso a partir de outra máquina.
+
+### Interpretação dos parâmetros
+
+- `curl`: cliente para realizar requisições HTTP.
+- `-I`: solicita cabeçalhos da resposta, sem transferir o corpo da página.
+- `--max-time 10`: limita a dez segundos a execução de cada requisição.
+- `127.0.0.1`: interface de loopback da própria VM Ubuntu.
+- `8081` / `8082`: portas do host publicadas por Nginx e Apache.
+
+**Próximo teste opcional:** de outra máquina autorizada na mesma rede, validar acesso HTTP às portas, considerando regras de firewall e exposição pretendida. Não publicar endereços internos no repositório.
