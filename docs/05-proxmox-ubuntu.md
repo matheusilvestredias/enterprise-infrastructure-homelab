@@ -2,100 +2,92 @@
 
 ## Objetivo
 
-Documentar a camada de virtualização e a instalação/gestão de uma VM Linux no laboratório. Esta documentação descreve o **ambiente trabalhado** e separa fatos observados de informações que ainda precisam de captura.
+Documentar o host de virtualização e a VM Linux utilizando resultados reais do laboratório.
 
-## Inventário lógico (histórico do laboratório)
+## Evidência: 28/10/2026
 
-| Componente | Informação documentada |
+O operador executou no host os comandos `pveversion -v` e `qm list`. As capturas foram fornecidas na conversa de documentação e os dados abaixo foram transcritos dos resultados.
+
+### Versões confirmadas
+
+| Componente | Versão observada |
 | --- | --- |
-| Servidor físico | Host usado para o laboratório; histórico: dois processadores e 128 GiB de RAM instalados |
-| Armazenamento físico | Aproximadamente 1,5 TB, conforme registro anterior; layout de RAID e capacidade útil exata **a confirmar** |
-| Hipervisor | Proxmox VE 7.x (registros prévios mostram builds 7.0.2-6-pve e 7.0.14-24-pve; versão **atual** a confirmar) |
-| VM | Ubuntu Server, identificada nos testes como `ubuntu-server-01` |
-| Interface da VM | `ens18` nos registros dos testes |
-| Rede | IPv4 estático /24 usado nos testes, com gateway e DNS definidos no ambiente |
-| Administração | SSH, sudo, usuários/grupos, permissões e systemd |
-| Aplicações | Docker e Docker Compose com Nginx e Apache |
+| Proxmox VE | **9.2.0** |
+| pve-manager | **9.2.21** |
+| Kernel em execução | **7.0.14-24-pve** |
+| QEMU/KVM (pve-qemu-kvm) | **11.0.3-4** |
+| pve-container | **6.1.14** |
+| pve-firewall | **6.0.6** |
 
-**Segurança:** endereços do laboratório original não são reproduzidos nesta documentação pública. Os exemplos usam redes reservadas à documentação (RFC 5737), não valores de acesso real.
+O relatório completo de `pveversion -v` foi capturado, mas esta página apresenta somente os componentes centrais para facilitar a leitura.
 
-## Topologia lógica
+### Máquina virtual confirmada
 
-```text
-                     Rede local / switch
-                             |
-                       Host físico
-                             |
-                   Proxmox VE (host)
-                             |
-                 Bridge virtual (ex.: vmbr0)
-                             |
-                  VM Ubuntu Server
-                      interface ens18
-                             |
-              +--------------+--------------+
-              |              |              |
-             SSH        Serviços Linux    Docker
-                                           |
-                                    Docker Compose
-                                      /       \
-                                   Nginx      Apache
-```
+| Campo | Valor observado |
+| --- | --- |
+| VMID | `100` |
+| Nome | `ubuntu-server-01` |
+| Estado | `running` |
+| Memória configurada | `4096 MB` (4 GiB apresentados pelo Proxmox como 4096 MB) |
+| Disco de boot | `40.00 GB` |
+| PID QEMU | Presente enquanto VM em execução; não mantido por ser temporário |
 
-> A bridge exibida é um **exemplo típico** de arquitetura Proxmox, não uma confirmação de que a configuração do host usa exatamente `vmbr0`. Confirmar com `ip -br link` e a configuração de rede antes de ajustar o diagrama definitivo.
+**Importante:** `qm list` mostra a memória configurada para a VM, **não** o uso efetivo de RAM dentro do Linux; também não informa número de vCPUs. A capacidade e o uso do disco precisam de outros comandos.
 
-## Validações realizadas durante os estudos
-
-1. Acesso à interface web do Proxmox e gerenciamento do ambiente.
-2. VM Ubuntu Server operacional.
-3. Inspeção da interface de rede `ens18`, endereço IPv4 /24, gateway e DNS.
-4. Acesso e estado do serviço SSH.
-5. Operações com usuários, grupos e permissões.
-6. Serviço personalizado `laboratorio.service` e análise de logs.
-7. Containers Nginx e Apache via Docker Compose.
-
-## Comandos para gerar evidências atuais (somente leitura)
-
-Execute **no host Proxmox**:
+### Comandos executados
 
 ```bash
 pveversion -v
 qm list
-ip -br addr
 ```
 
-- `pveversion -v`: mostra a versão instalada do Proxmox e dos pacotes relacionados.
-- `qm list`: lista as máquinas virtuais QEMU/KVM e seus IDs/estados.
-- `ip -br addr`: resume interfaces e IPs atribuídos ao host.
+- `pveversion -v`: lista a versão do Proxmox VE, a versão do kernel e os pacotes instalados.
+- `qm list`: lista VMs QEMU/KVM, seus IDs, nomes, estados, memória configurada, disco de boot e PID.
 
-Execute **na VM Ubuntu**:
+## Topologia lógica verificada/parcial
+
+```text
+Servidor físico
+  |
+  +-- Proxmox VE 9.2.0 (kernel 7.0.14-24-pve)
+        |
+        +-- VM 100: ubuntu-server-01 [running]
+              |-- RAM configurada: 4096 MB
+              |-- Disco de boot: 40 GB
+              |-- Ubuntu Server / SSH (registrado em testes anteriores)
+              +-- Docker e serviços de laboratório (registrados em testes anteriores)
+```
+
+A bridge de rede, a quantidade de vCPUs e a configuração da VM **ainda não foram verificadas** nestas capturas.
+
+## Outros dados históricos a confirmar
+
+Registros anteriores do laboratório indicavam servidor com dois processadores, 128 GB de RAM física, aproximadamente 1,5 TB de armazenamento e interface `ens18` na VM. Estes itens **não foram validados** pelas capturas de 28/10/2026.
+
+## Próximas verificações de somente leitura
+
+No host Proxmox:
+
+```bash
+qm config 100
+pvesm status
+```
+
+- `qm config 100`: mostra a configuração da VM de ID 100, incluindo CPU, memória, discos e interfaces virtuais. Atenção: revise/remova quaisquer valores sensíveis antes de publicar.
+- `pvesm status`: exibe armazenamentos configurados e informações de capacidade/uso.
+
+Dentro da VM Ubuntu:
 
 ```bash
 hostnamectl
 ip -br addr
-ip route
-resolvectl status
 systemctl status ssh --no-pager
 ```
 
-- `hostnamectl`: mostra o hostname, kernel e informações do sistema.
-- `ip -br addr`: apresenta interfaces e endereços IP de forma resumida.
-- `ip route`: exibe as rotas IP, incluindo a rota padrão (gateway).
-- `resolvectl status`: informa a configuração do resolvedor DNS.
-- `systemctl status ssh --no-pager`: consulta o serviço SSH sem abrir o paginador interativo.
+- `hostnamectl`: apresenta nome do sistema e informações de SO/kernel.
+- `ip -br addr`: resume interfaces e endereços IP. Oculte IPs reais antes de publicar.
+- `systemctl status ssh --no-pager`: consulta a situação do serviço SSH sem abrir paginador.
 
-**Antes de publicar saídas/prints:** ocultar IPs reais, nomes internos, UUIDs, endereços MAC, tokens, nomes de usuários sensíveis e demais dados identificáveis.
+## Cuidados de publicação
 
-## Checklist para transformar o registro em documentação validada
-
-- [ ] Capturar saída **atual** de `pveversion -v` (versão exata do host).
-- [ ] Confirmar modelo do servidor, memória e desenho de armazenamento/RAID divulgáveis.
-- [ ] Identificar ID da VM e configuração de vCPU, RAM e disco.
-- [ ] Confirmar bridge, VLANs (se houver), gateway e topologia de rede.
-- [ ] Adicionar evidência da VM ligada e do SSH ativo (redigida).
-- [ ] Capturar testes reproduzíveis de conectividade e DNS.
-- [ ] Revisar todas as evidências antes de torná-las públicas.
-
-## Próxima etapa
-
-Detalhar o processo de criação da VM e registrar prints do Proxmox com dados privados ocultos. Não executar mudanças destrutivas ou migrar a infraestrutura apenas para produzir prints.
+Não disponibilizar publicamente senhas, tokens, chaves privadas, IPs de acesso, dados da empresa ou seriais. As imagens originais podem permanecer em arquivo privado; este documento registra fatos técnicos já revisados.
