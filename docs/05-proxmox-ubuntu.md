@@ -164,7 +164,7 @@ O comando retornou ao prompt **sem mensagem de erro ou saída adicional**. Isso 
 | `fwpr100p0@fwln100i0` | UP | Porta virtual do caminho de firewall |
 | `fwln100i0@fwpr100p0` | UP | Par de ligação virtual do caminho de firewall |
 
-A presença dessas interfaces é coerente com a configuração `net0 ... bridge=vmbr0,firewall=1` da VM 100. A captura **não comprova, sozinha**, que `nic3` é a porta física vinculada a `vmbr0`; confirmar pelas portas da bridge.
+A presença dessas interfaces é coerente com a configuração `net0 ... bridge=vmbr0,firewall=1` da VM 100. O vínculo físico foi **confirmado posteriormente** por `bridge link`: `nic3` tem `master vmbr0` e estado `forwarding`.
 
 ### Comandos de diagnóstico utilizados
 
@@ -181,4 +181,50 @@ ip -br addr show vmbr0
 - `bridge link`: lista portas associadas a bridges Linux, útil para identificar a interface física ligada à bridge.
 - `ip -br addr show vmbr0`: mostra os endereços IP associados à bridge `vmbr0`. **Remover IPs reais antes da publicação.**
 
-As saídas e o vínculo físico da bridge ainda precisam ser confirmados.
+O vínculo físico e o IP na bridge foram verificados em 28/10/2026; os endereços reais permanecem omitidos na documentação pública.
+
+## Confirmação de bridge e conectividade virtual — 28/10/2026
+
+O comando `bridge link` confirmou as relações:
+
+| Porta | Bridge mestre | Estado |
+| --- | --- | --- |
+| `nic3` | `vmbr0` | `forwarding` |
+| `fwpr100p0@fwln100i0` | `vmbr0` | `forwarding` |
+| `tap100i0` | `fwbr100i0` | `forwarding` |
+| `fwln100i0@fwpr100p0` | `fwbr100i0` | `forwarding` |
+
+O comando `ip -br addr show vmbr0` mostrou `vmbr0` no estado **UP** e com um endereço IPv4 **/24** atribuído, além de um endereço IPv6 link-local. Por segurança, os endereços reais e MACs não foram publicados.
+
+### Topologia detalhada confirmada
+
+```text
+             Rede física / switch (destino a mapear)
+                            |
+                        nic3 [UP]
+                            |
+                         vmbr0 [UP]
+                         /       \\
+          IP do host /24          fwpr100p0
+                                      |
+                                  fwln100i0
+                                      |
+                                  fwbr100i0
+                                      |
+                                  tap100i0
+                                      |
+                           VM 100: ubuntu-server-01
+```
+
+Essa topologia representa os vínculos entre portas Linux constatados em `bridge link`; não comprova acesso ao gateway ou à Internet. O caminho de firewall indica interfaces criadas pelo Proxmox, não evidencia por si só filtragem efetiva por regras.
+
+### Comandos e significado
+
+- `bridge link`: exibe portas e respectivos dispositivos bridge mestre, com estado de encaminhamento.
+- `ip -br addr show vmbr0`: exibe resumidamente estado e endereços IP da interface de bridge; comando não modifica a rede.
+
+### Próximos testes
+
+- [ ] Confirmar gateway e conectividade do host sem publicar endereços reais.
+- [ ] Confirmar interface da VM, IP e gateway no Ubuntu.
+- [ ] Validar comunicação do Ubuntu ao gateway, DNS e serviços da aplicação.
