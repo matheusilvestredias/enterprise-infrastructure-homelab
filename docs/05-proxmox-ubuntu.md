@@ -58,7 +58,40 @@ Servidor físico
               +-- Docker e serviços de laboratório (registrados em testes anteriores)
 ```
 
-A bridge de rede, a quantidade de vCPUs e a configuração da VM **ainda não foram verificadas** nestas capturas.
+A configuração detalhada foi confirmada em 28/10/2026 pelo comando `qm config 100`:
+
+| Parâmetro | Valor confirmado | Interpretação |
+| --- | --- | --- |
+| `cores: 2` | 2 | Núcleos virtuais por socket |
+| `sockets: 1` | 1 | 1 socket virtual, total de **2 vCPUs** |
+| `memory: 4096` | 4096 MiB | **4 GiB** de memória provisionada |
+| `cpu: x86-64-v2-AES` | x86-64-v2-AES | Modelo de CPU virtual |
+| `scsi0` | `local-lvm:vm-100-disk-0` | Disco virtual de 40 GiB, interface SCSI |
+| `scsihw: virtio-scsi-single` | VirtIO SCSI | Controladora de armazenamento paravirtualizada |
+| `iothread=1` | Habilitado | Thread dedicada de I/O para o disco |
+| `net0` | VirtIO / `vmbr0` | Adaptador de rede virtual ligado à bridge do host |
+| `firewall=1` | Habilitado na interface | Opção de firewall da interface ativa; **não prova existência de regras bloqueando tráfego** |
+| `agent: 1` | Habilitado na configuração | Integração QEMU Guest Agent configurada; não confirma que o serviço no guest está ativo |
+| `numa: 0` | Desativado | Exposição de topologia NUMA não habilitada |
+| `boot` | `scsi0,ide2,net0` | Ordem de tentativa de inicialização |
+
+Os endereços MAC, UUIDs e identificadores específicos da instância foram omitidos deliberadamente.
+
+### Diagrama da VM confirmado
+
+```text
+Proxmox VE 9.2.0
+└── vmbr0 (bridge do host)
+    └── VM 100 — ubuntu-server-01 [running]
+        ├── 1 socket × 2 cores = 2 vCPUs
+        ├── RAM: 4096 MiB (4 GiB)
+        ├── CPU: x86-64-v2-AES
+        ├── VirtIO Ethernet (firewall=1 na configuração)
+        ├── VirtIO SCSI / local-lvm / disco de 40 GiB
+        └── QEMU Guest Agent habilitado na configuração
+```
+
+Essa topologia descreve as conexões virtuais observadas. A conexão física da bridge com interfaces do servidor ainda precisa ser verificada.
 
 ## Outros dados históricos a confirmar
 
@@ -91,3 +124,17 @@ systemctl status ssh --no-pager
 ## Cuidados de publicação
 
 Não disponibilizar publicamente senhas, tokens, chaves privadas, IPs de acesso, dados da empresa ou seriais. As imagens originais podem permanecer em arquivo privado; este documento registra fatos técnicos já revisados.
+
+## Verificação da configuração virtual — 28/10/2026
+
+Comando executado no host:
+
+```bash
+qm config 100
+```
+
+- `qm`: gerencia máquinas virtuais QEMU/KVM no Proxmox.
+- `config`: consulta os parâmetros configurados.
+- `100`: ID da VM consultada.
+
+Próximas checagens sem alteração de configuração: `qm guest cmd 100 ping` para verificar se o QEMU Guest Agent responde (só funciona se instalado e operacional dentro do guest), e `ip -br link` no host para inspecionar interfaces e bridges. Evitar divulgar MACs reais das saídas.
