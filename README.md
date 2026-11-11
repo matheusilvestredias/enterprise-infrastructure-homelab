@@ -6,7 +6,7 @@
 
 Este repositório documenta a construção progressiva de um ambiente de estudo com servidor físico, **Proxmox VE**, **Ubuntu Server** e **Docker**. O objetivo é demonstrar competências práticas de administração de sistemas, troubleshooting e documentação técnica.
 
-**Status:** em desenvolvimento. Os procedimentos aqui registrados refletem o laboratório de estudo; resultados e evidências adicionais serão incorporados conforme as validações.
+**Status:** em desenvolvimento. **Última etapa registrada (11/11/2026):** aplicação Docker Compose com Nginx, Flask e PostgreSQL funcionando em teste local. Os procedimentos aqui registrados refletem o laboratório de estudo; resultados e evidências adicionais serão incorporados conforme as validações.
 
 ## Arquitetura atual (simplificada)
 
@@ -18,9 +18,11 @@ Servidor físico
         ├── Administração Linux (usuários, grupos, permissões)
         ├── Serviço systemd e logs
         └── Docker + Docker Compose
-            ├── Nginx
-            ├── Apache
-            └── Volumes persistentes
+            ├── Nginx (proxy reverso)
+            ├── Flask (API Python)
+            └── PostgreSQL (banco e volume)
+
+Histórico anterior: Nginx e Apache em containers independentes (outubro/2026).
 ```
 
 > Diagrama lógico: não representa todos os equipamentos, portas ou segmentos de rede. Endereços IP, dados corporativos e credenciais foram omitidos deliberadamente.
@@ -31,7 +33,7 @@ Servidor físico
 - **Sistemas operacionais:** Ubuntu Server, Linux
 - **Rede:** IPv4, gateway, DNS, SSH
 - **Administração Linux:** contas, grupos, permissões, systemd e journalctl
-- **Containers:** Docker, Docker Compose, Nginx e Apache
+- **Containers:** Docker, Docker Compose, Nginx, Apache (experimento anterior), Flask e PostgreSQL
 - **Próximos estudos:** monitoramento, Ansible, Terraform e AWS (ainda não implementados neste projeto)
 
 ## Documentação
@@ -44,6 +46,8 @@ Servidor físico
 | [Roadmap](docs/04-roadmap.md) | Implementações atuais e planejadas |
 | [Proxmox e Ubuntu Server](docs/05-proxmox-ubuntu.md) | Inventário, topologia, comandos e validações pendentes |
 | [Guia de evidências](docs/06-evidencias.md) | Checklist de capturas e cuidados com dados sensíveis |
+| [Testes de conectividade e HTTP](docs/07-validacao-conectividade-containers.md) | Ping, DNS e respostas HTTP dos containers |
+| [Aplicação Flask + PostgreSQL + Nginx](docs/08-flask-postgresql-nginx.md) | Arquitetura multicontainer, testes e próximos passos |
 
 ## Como ler este projeto
 
@@ -59,4 +63,4 @@ Projeto de estudos e portfólio técnico de **Matheus Silvestre de Oliveira Dias
 
 ---
 
-*Documentation in Portuguese. English summary: A practical infrastructure homelab featuring Proxmox, Ubuntu Server, Linux administration, SSH, Docker Compose, and persistent volumes; future phases include monitoring, automation, and AWS.*
+*Documentation in Portuguese. English summary: A practical infrastructure homelab featuring Proxmox, Ubuntu Server, Linux administration, SSH, Docker Compose, Flask, PostgreSQL and persistent volumes; future phases include monitoring, automation, and AWS.*
