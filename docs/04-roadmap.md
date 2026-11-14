@@ -10,6 +10,8 @@
 - [x] Docker e Docker Compose
 - [x] Aplicação multicontainer com Nginx, Flask e PostgreSQL; containers em execução e endpoint `/equipamentos` respondendo (11/11/2026)
 - [x] Observação de volumes persistindo após remoção dos containers
+- [x] Ansible Core 2.16.3 e SSH por chave para segunda VM Ubuntu Server (13/11/2026)
+- [x] Playbook Ansible de instalação do Nginx executado sem falhas; HTTP 200 OK validado
 
 ## Próximas etapas (não concluídas)
 
@@ -18,7 +20,9 @@
 - [ ] Comprovar persistência do PostgreSQL e procedimento de backup/restauração
 - [ ] Ampliar testes e evidências do Docker Compose
 - [ ] Monitoramento de hosts e serviços (Zabbix/Prometheus/Grafana — escolha pendente)
-- [ ] Automação de configurações com Ansible
+- [ ] Revisar e publicar playbook real e inventário sanitizado do Ansible
+- [ ] Executar/validar playbook de página HTML personalizada com Ansible
+- [ ] Confirmar idempotência e ampliar automações Ansible
 - [ ] Infraestrutura como código com Terraform
 - [ ] Integração com AWS, incluindo custos, permissões e segurança
 - [ ] Diagramas revisados e portfólio de publicações no LinkedIn
