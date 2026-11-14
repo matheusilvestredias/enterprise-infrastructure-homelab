@@ -6,7 +6,7 @@
 
 Este repositório documenta a construção progressiva de um ambiente de estudo com servidor físico, **Proxmox VE**, **Ubuntu Server** e **Docker**. O objetivo é demonstrar competências práticas de administração de sistemas, troubleshooting e documentação técnica.
 
-**Status:** em desenvolvimento. **Última etapa registrada (11/11/2026):** aplicação Docker Compose com Nginx, Flask e PostgreSQL funcionando em teste local. Os procedimentos aqui registrados refletem o laboratório de estudo; resultados e evidências adicionais serão incorporados conforme as validações.
+**Status:** em desenvolvimento. **Última etapa registrada (13/11/2026):** Ansible Core 2.16.3 configurado para automatizar a instalação do Nginx em uma segunda VM Ubuntu Server, com teste HTTP 200 OK. Os procedimentos aqui registrados refletem o laboratório de estudo; resultados e evidências adicionais serão incorporados conforme as validações.
 
 ## Arquitetura atual (simplificada)
 
@@ -22,6 +22,11 @@ Servidor físico
             ├── Flask (API Python)
             └── PostgreSQL (banco e volume)
 
+
+    └── Ansible Core 2.16.3 (nó de controle)
+        └── SSH → segunda VM Ubuntu Server
+            └── Nginx 1.24.0 (HTTP 200 OK)
+
 Histórico anterior: Nginx e Apache em containers independentes (outubro/2026).
 ```
 
@@ -34,7 +39,8 @@ Histórico anterior: Nginx e Apache em containers independentes (outubro/2026).
 - **Rede:** IPv4, gateway, DNS, SSH
 - **Administração Linux:** contas, grupos, permissões, systemd e journalctl
 - **Containers:** Docker, Docker Compose, Nginx, Apache (experimento anterior), Flask e PostgreSQL
-- **Próximos estudos:** monitoramento, Ansible, Terraform e AWS (ainda não implementados neste projeto)
+- **Automação de configuração:** Ansible Core, inventário, playbooks, SSH por chave e Nginx remoto
+- **Próximos estudos:** monitoramento, Terraform e integração AWS (ainda não validados neste projeto)
 
 ## Documentação
 
@@ -48,6 +54,7 @@ Histórico anterior: Nginx e Apache em containers independentes (outubro/2026).
 | [Guia de evidências](docs/06-evidencias.md) | Checklist de capturas e cuidados com dados sensíveis |
 | [Testes de conectividade e HTTP](docs/07-validacao-conectividade-containers.md) | Ping, DNS e respostas HTTP dos containers |
 | [Aplicação Flask + PostgreSQL + Nginx](docs/08-flask-postgresql-nginx.md) | Arquitetura multicontainer, testes e próximos passos |
+| [Ansible e Nginx remoto](docs/09-ansible-nginx.md) | Automação validada em segunda VM Ubuntu e HTTP 200 OK |
 
 ## Como ler este projeto
 
@@ -63,4 +70,4 @@ Projeto de estudos e portfólio técnico de **Matheus Silvestre de Oliveira Dias
 
 ---
 
-*Documentation in Portuguese. English summary: A practical infrastructure homelab featuring Proxmox, Ubuntu Server, Linux administration, SSH, Docker Compose, Flask, PostgreSQL and persistent volumes; future phases include monitoring, automation, and AWS.*
+*Documentation in Portuguese. English summary: A practical infrastructure homelab featuring Proxmox, Ubuntu Server, Linux administration, SSH, Docker Compose, Flask, PostgreSQL and persistent volumes; Ansible automation across two Ubuntu VMs; future phases include monitoring, Terraform and AWS.*
