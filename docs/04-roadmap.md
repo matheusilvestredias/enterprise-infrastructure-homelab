@@ -1,0 +1,32 @@
+# 04 — Roadmap do laboratório
+
+## Implementado / praticado
+
+- [x] Servidor de virtualização Proxmox VE
+- [x] VM Ubuntu Server
+- [x] Diagnóstico de rede, gateway e DNS
+- [x] Administração Linux e SSH
+- [x] Serviço systemd e consulta de logs
+- [x] Docker e Docker Compose
+- [x] Aplicação multicontainer com Nginx, Flask e PostgreSQL; containers em execução e endpoint `/equipamentos` respondendo (11/11/2026)
+- [x] Observação de volumes persistindo após remoção dos containers
+- [x] Ansible Core 2.16.3 e SSH por chave para segunda VM Ubuntu Server (13/11/2026)
+- [x] Playbook Ansible de instalação do Nginx executado sem falhas; HTTP 200 OK validado
+
+## Próximas etapas (não concluídas)
+
+- [ ] Revisar e publicar arquivos Compose, Nginx e Flask sem segredos
+- [ ] Validar healthchecks e ordem de dependências dos serviços
+- [ ] Comprovar persistência do PostgreSQL e procedimento de backup/restauração
+- [ ] Ampliar testes e evidências do Docker Compose
+- [ ] Monitoramento de hosts e serviços (Zabbix/Prometheus/Grafana — escolha pendente)
+- [ ] Revisar e publicar playbook real e inventário sanitizado do Ansible
+- [ ] Executar/validar playbook de página HTML personalizada com Ansible
+- [ ] Confirmar idempotência e ampliar automações Ansible
+- [ ] Infraestrutura como código com Terraform
+- [ ] Integração com AWS, incluindo custos, permissões e segurança
+- [ ] Diagramas revisados e portfólio de publicações no LinkedIn
+
+## Critério de conclusão de cada etapa
+
+Uma etapa só será marcada como validada quando houver descrição de ambiente, procedimento, comandos explicados, resultado de teste e evidências sanitizadas.
