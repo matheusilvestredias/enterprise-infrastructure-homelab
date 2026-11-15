@@ -1,0 +1,21 @@
+
+---
+- name: Instalar e configurar Nginx
+  hosts: servidores_linux
+  become: true
+
+  tasks:
+    - name: Atualizar lista de pacotes
+      apt:
+        update_cache: true
+
+    - name: Instalar Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Garantir que Nginx esteja iniciado
+      service:
+        name: nginx
+        state: started
+        enabled: true

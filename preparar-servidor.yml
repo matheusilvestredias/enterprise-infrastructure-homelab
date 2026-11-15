@@ -1,0 +1,33 @@
+---
+- name: Preparar servidor Linux
+  hosts: servidores_linux
+  become: true
+
+  tasks:
+    - name: Atualizar cache de pacotes
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Instalar ferramentas essenciais
+      apt:
+        name:
+          - nginx
+          - curl
+          - git
+          - htop
+        state: present
+
+    - name: Garantir que Nginx esteja ativo
+      service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Copiar pagina do laboratorio
+      copy:
+        src: files/index.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: '0644'

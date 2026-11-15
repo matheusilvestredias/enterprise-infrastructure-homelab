@@ -1,0 +1,13 @@
+---
+- name: Configurar site do laboratorio
+  hosts: servidores_linux
+  become: true
+
+  tasks:
+    - name: Copiar pagina HTML para o servidor
+      copy:
+        src: files/index.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: '0644'
