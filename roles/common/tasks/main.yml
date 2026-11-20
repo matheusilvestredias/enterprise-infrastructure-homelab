@@ -1,0 +1,10 @@
+---
+- name: Atualizar cache de pacotes
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Instalar ferramentas essenciais
+  apt:
+    name: "{{ pacotes_essenciais }}"
+    state: present

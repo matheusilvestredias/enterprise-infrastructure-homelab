@@ -1,0 +1,6 @@
+---
+pacotes_essenciais:
+  - nginx
+  - curl
+  - git
+  - htop

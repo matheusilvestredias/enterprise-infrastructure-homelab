@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enterprise Infrastructure Homelab</title>
+</head>
+<body>
+    <h1>Enterprise Infrastructure Homelab</h1>
+
+    <h2>Informacoes do Servidor</h2>
+
+    <p>Hostname: {{ ansible_hostname }}</p>
+    <p>IP: {{ ansible_default_ipv4.address }}</p>
+    <p>Sistema: {{ ansible_distribution }}</p>
+    <p>Versao: {{ ansible_distribution_version }}</p>
+    <p>Arquitetura: {{ ansible_architecture }}</p>
+    <p>Memoria RAM: {{ ansible_memtotal_mb }} MB</p>
+
+    <h2>Automacao</h2>
+    <p>Gerenciamento: Ansible</p>
+    <p>Status: Online</p>
+    <p>Configuracao automatizada com Ansible + Jinja2</p>
+</body>
+</html>

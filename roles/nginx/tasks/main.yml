@@ -1,0 +1,20 @@
+---
+- name: Instalar Nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Garantir que Nginx esteja ativo
+  service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: Gerar pagina do laboratorio com Jinja2
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reiniciar Nginx
